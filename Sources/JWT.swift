@@ -16,9 +16,13 @@ public struct JWT: Codable {
         /// kid
         let keyID: String
 
+        /// typ
+        let typ: String = "JWT"
+
         enum CodingKeys: String, CodingKey {
             case algorithm = "alg"
             case keyID = "kid"
+            case typ = "typ"
         }
     }
 
@@ -32,10 +36,14 @@ public struct JWT: Codable {
         /// exp
         public let expireDate: Int
 
+        /// A domain restriction which should match the Origin header passed by a browser. (recommended)
+        let origin: String?
+
         enum CodingKeys: String, CodingKey {
             case teamID = "iss"
             case issueDate = "iat"
             case expireDate = "exp"
+            case origin = "origin"
         }
     }
 
@@ -43,14 +51,14 @@ public struct JWT: Codable {
 
     private let payload: Payload
 
-    public init(keyID: String, teamID: String, issueDate: Date, expireDuration: TimeInterval) {
+    public init(keyID: String, teamID: String, issueDate: Date, expireDuration: TimeInterval, origin: String? = nil) {
 
         header = Header(keyID: keyID)
 
         let iat = Int(issueDate.timeIntervalSince1970.rounded())
         let exp = iat + Int(expireDuration)
 
-        payload = Payload(teamID: teamID, issueDate: iat, expireDate: exp)
+        payload = Payload(teamID: teamID, issueDate: iat, expireDate: exp, origin: origin)
     }
 
     /// Combine header and payload as digest for signing.
